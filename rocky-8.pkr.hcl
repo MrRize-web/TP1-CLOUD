@@ -8,18 +8,18 @@ source "qemu" "example" {
   accelerator       = "kvm"
   http_directory    = "./ks"
   ssh_username      = "root"
-  ssh_password      = "IVAzOVbNRKwm9Yd$HR1eD94MhozPd/c7OND8rC68oOBsGwkETd6tEyCisL4g2KG6.PVUZBJnH2gooENrWHKSfPpy4dxXWX6GX/7dn0"
-  ssh_timeout       = "20m"
-  vm_name           = "tp-1"
-  memory            = "2048"
+  ssh_password      = "%Serveur44"
+  ssh_timeout       = "60m"
+  vm_name           = "TP-1"
+  memory            = "4096"
   net_device        = "virtio-net"
   disk_interface    = "virtio"
   //Time waited by packer before do any action
   qemu_binary       = "/usr/libexec/qemu-kvm"
   display           = "none"
   headless          = "true"
-  boot_wait         = "10s"
-  boot_command      = ["<tab> text inst.ks=http://192.168.122.1:{{ .HTTPPort }}/rocky-8.cfg<enter><wait>"]
+  boot_wait         = "3s"
+  boot_command      = ["<tab> text inst.ks=http://192.168.1.112:{{ .HTTPPort }}/rocky-8.cfg<enter><wait>"]
 }
 
 build {

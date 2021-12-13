@@ -1,8 +1,92 @@
 ---
-- hosts: all
+- hosts: all 
   become: yes
   tasks:
+
+    - name: Install git go
+      package:
+        name:
+          - git
+          - go
+        state: present
+      
+    - name: Install package GO
+      package:
+        name: go
+        state: latest
+      
     - name: Install package GIT
       package:
         name: git
-        state: latest 
+        state: latest
+
+    - name : Install Make package
+      package:
+        name: make 
+        state: latest
+
+    - name: Enable service sshd
+      ansible.builtin.service:
+        name: sshd.service
+        enabled: yes
+     
+    - name: New service systemd
+      ansible.builtin.template:
+        src: /root/TP1-PacketBuildAnsible/golang/golang.service
+        dest: /etc/systemd/system/golang.service
+        
+    - name: Create go directory
+      ansible.builtin.file:
+        path: /tmp/golangapp
+        state: directory
+        mode: '0755'
+
+    - name: Get goland myip from distant git
+      ansible.builtin.git:
+        repo: https://github.com/BastienBalaud/golang-myip.git
+        dest: /tmp/golangapp/
+        clone: yes
+        update: yes
+
+    - name: Restart systemd daemon to read new service
+      ansible.builtin.systemd:
+        daemon_reload: yes
+
+    - name: Set selinux disabled
+      ansible.posix.selinux:
+        policy: targeted
+        state: disabled 
+    
+    - name: Reboot machineselinux modifications
+      reboot:
+        reboot_timeout: 10
+
+    - name: Makefile with shell
+      shell: 'make -C /tmp/golangapp -f /tmp/golangapp/Makefile'
+      args:
+        executable: /bin/bash
+      become: True
+
+    - name: Start service golang
+      ansible.builtin.service:
+        name: golang.service
+        state: started
+
+    - name: Enable golang.service
+      ansible.builtin.service:
+        name: golang.service
+        enabled: yes
+
+    - name: Start golang.service
+      ansible.builtin.service:
+        name: golang.service
+        state: started
+
+    - name: Status golang.service
+      ansible.builtin.shell: systemctl status golang.service & ip a
+
+    - name: Open port 80
+      ansible.posix.firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
