@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: localhost
   become: yes
   tasks:
 
@@ -30,7 +30,7 @@
         name: sshd.service
         enabled: yes
      
-    - name: New service systemd
+    - name: New service systemd Go
       ansible.builtin.template:
         src: /root/TP1-PacketBuildAnsible/golang/golang.service
         dest: /etc/systemd/system/golang.service
@@ -52,20 +52,20 @@
       ansible.builtin.systemd:
         daemon_reload: yes
 
-    - name: Set selinux permissive
-      ansible.posix.selinux:
-        policy: targeted
-        state: permissive
+#    - name: Set selinux permissive
+#      ansible.posix.selinux:
+#        policy: targeted
+#        state: permissive
     
 #    - name: Reboot machineselinux modifications
 #      reboot:
 #        reboot_timeout: 60
 
-    - name: Makefile with shell
-      shell: 'make -C /tmp/golangapp -f /tmp/golangapp/Makefile'
-      args:
-        executable: /bin/bash
-      become: True
+#    - name: Makefile with shell
+#      shell: 'make -C /tmp/golangapp -f /tmp/golangapp/Makefile'
+#      args:
+#        executable: /bin/bash
+#      become: True
 
     - name: Start service golang
       ansible.builtin.service:
@@ -77,11 +77,6 @@
         name: golang.service
         enabled: yes
 
-    - name: Start golang.service
-      ansible.builtin.service:
-        name: golang.service
-        state: started
-
     - name: Status golang.service & IP 
       ansible.builtin.shell: systemctl status golang.service & ip a
 
@@ -90,3 +85,17 @@
         port: 80/tcp
         permanent: yes
         state: enabled
+
+    - name: Add Bastien
+      ansible.builtin.user:
+        name: bastien
+        shell: /bin/bash
+        groups: users,wheel
+        append: yes
+
+    - name: Set authorized key took from url
+      authorized_key:
+        user: bastien
+        state: present
+        key: https://github.com/BastienBalaud.keys
+
