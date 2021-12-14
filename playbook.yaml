@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: all
   become: yes
   tasks:
 
@@ -31,7 +31,7 @@
         enabled: yes
      
     - name: New service systemd Go
-      ansible.builtin.template:
+      ansible.builtin.template:   
         src: /root/TP1-PacketBuildAnsible/golang/golang.service
         dest: /etc/systemd/system/golang.service
         
@@ -52,20 +52,20 @@
       ansible.builtin.systemd:
         daemon_reload: yes
 
-#    - name: Set selinux permissive
-#      ansible.posix.selinux:
-#        policy: targeted
-#        state: permissive
+    - name: Set selinux permissive
+      ansible.posix.selinux:
+        policy: targeted
+        state: permissive
     
 #    - name: Reboot machineselinux modifications
 #      reboot:
 #        reboot_timeout: 60
 
-#    - name: Makefile with shell
-#      shell: 'make -C /tmp/golangapp -f /tmp/golangapp/Makefile'
-#      args:
-#        executable: /bin/bash
-#      become: True
+    - name: Makefile with shell
+      shell: 'make -C /tmp/golangapp -f /tmp/golangapp/Makefile'
+      args:
+       executable: /bin/bash
+      become: True
 
     - name: Start service golang
       ansible.builtin.service:
@@ -79,6 +79,12 @@
 
     - name: Status golang.service & IP 
       ansible.builtin.shell: systemctl status golang.service & ip a
+
+#    - name: Open port 80 shell
+#      shell: 'firewall-cmd --zone=public --add-port=80/tcp --permanent & firewall-cmd --reload'
+#      args:
+#        executable: /bin/bash
+#      become: True
 
     - name: Open port 80
       ansible.posix.firewalld:
