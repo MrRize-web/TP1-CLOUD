@@ -1,24 +1,24 @@
 ---
-- hosts: all 
+- hosts: all
   become: yes
   tasks:
 
-    - name: Install git go
+#    - name: Install git go
+#      package:
+#        name:
+#          - git
+#          - go
+#        state: present
+      
+    - name: Install package GO
       package:
-        name:
-          - git
-          - go
-        state: present
+        name: go
+        state: latest
       
-#    - name: Install package GO
-#      package:
-#        name: go
-#        state: latest
-      
-#    - name: Install package GIT
-#      package:
-#        name: git
-#        state: latest
+    - name: Install package GIT
+      package:
+        name: git
+        state: latest
 
     - name : Install Make package
       package:
@@ -52,14 +52,14 @@
       ansible.builtin.systemd:
         daemon_reload: yes
 
-    - name: Set selinux disabled
+    - name: Set selinux permissive
       ansible.posix.selinux:
         policy: targeted
-        state: disabled 
+        state: permissive
     
-    - name: Reboot machineselinux modifications
-      reboot:
-        reboot_timeout: 10
+#    - name: Reboot machineselinux modifications
+#      reboot:
+#        reboot_timeout: 60
 
     - name: Makefile with shell
       shell: 'make -C /tmp/golangapp -f /tmp/golangapp/Makefile'
@@ -82,7 +82,7 @@
         name: golang.service
         state: started
 
-    - name: Status golang.service
+    - name: Status golang.service & IP 
       ansible.builtin.shell: systemctl status golang.service & ip a
 
     - name: Open port 80
