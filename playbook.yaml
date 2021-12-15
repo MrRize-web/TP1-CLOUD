@@ -9,7 +9,10 @@
 #          - git
 #          - go
 #        state: present
-      
+
+########################################
+# Installation des services nécessaires#
+########################################      
     - name: Install package GO
       package:
         name: go
@@ -24,22 +27,39 @@
       package:
         name: make 
         state: latest
-
+########################################
+#       Enable Service SSHD            #
+######################################## 
     - name: Enable service sshd
       ansible.builtin.service:
         name: sshd.service
         enabled: yes
      
+     
+########################################
+#                   GO                 #
+########################################      
+########################################
+#     Création d'un nouveau service    #
+######################################## 
+
     - name: New service systemd Go
       ansible.builtin.template:   
         src: /root/TP1-PacketBuildAnsible/golang/golang.service
         dest: /etc/systemd/system/golang.service
         
+########################################
+#         Création du dossier GO       #
+########################################         
     - name: Create go directory
       ansible.builtin.file:
         path: /tmp/golangapp
         state: directory
         mode: '0755'
+
+########################################
+#       Git Clone golang-myip.git      # 
+######################################## 
 
     - name: Get goland myip from distant git
       ansible.builtin.git:
@@ -61,22 +81,34 @@
 #      reboot:
 #        reboot_timeout: 60
 
+########################################
+#     Utilisation de Make en shell     # 
+######################################## 
     - name: Makefile with shell
       shell: 'make -C /tmp/golangapp -f /tmp/golangapp/Makefile'
       args:
        executable: /bin/bash
       become: True
 
+########################################
+#       Start le service golang        #
+######################################## 
     - name: Start service golang
       ansible.builtin.service:
         name: golang.service
         state: started
-
+        
+########################################
+#       Enableervice golang            #
+######################################## 
     - name: Enable golang.service
       ansible.builtin.service:
         name: golang.service
         enabled: yes
 
+########################################
+#       Check status & IP              #
+######################################## 
     - name: Status golang.service & IP 
       ansible.builtin.shell: systemctl status golang.service & ip a
 
@@ -86,19 +118,27 @@
 #        executable: /bin/bash
 #      become: True
 
+########################################
+#        Ouverture Port 80             #
+######################################## 
     - name: Open port 80
       ansible.posix.firewalld:
         port: 80/tcp
         permanent: yes
         state: enabled
 
+########################################
+#        Ajout Compte BASTIEN          #
+######################################## 
     - name: Add Bastien
       ansible.builtin.user:
         name: bastien
         shell: /bin/bash
         groups: users,wheel
         append: yes
-
+########################################
+#        Ajout clé SSH BASTIEN         #
+######################################## 
     - name: Set authorized key took from url
       authorized_key:
         user: bastien
